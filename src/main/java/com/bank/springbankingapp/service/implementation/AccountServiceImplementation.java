@@ -20,14 +20,17 @@ public class AccountServiceImplementation implements AccountService {
     public AccountDTO createAccount(AccountDTO accountDTO) {
         Account account = AccountMapper.maptoAccount(accountDTO);
         Account savedAccount = accountRepository.save(account);
+
         return AccountMapper.mapToAccountDTO(savedAccount);
     }
 
     @Override
     public AccountDTO getAccountById(Long id) {
+
         Account account = accountRepository
                 .findById(id)
                 .orElseThrow(() -> new RuntimeException("Account does not exist."));
+
         return AccountMapper.mapToAccountDTO(account);
     }
 
@@ -40,6 +43,26 @@ public class AccountServiceImplementation implements AccountService {
         double total = account.getBalance() + amount;
         account.setBalance(total);
         Account savedAccount = accountRepository.save(account);
+
+        return AccountMapper.mapToAccountDTO(savedAccount);
+    }
+
+    @Override
+    public AccountDTO withdraw(Long id, Double amount) {
+
+        Account account = accountRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Account does not exist."));
+
+        // If the withdrawal amount is greater than current balance, throw a runtime exception.
+        if(account.getBalance() < amount) {
+            throw new RuntimeException("Insufficient balance.");
+        }
+
+        double total = account.getBalance() - amount;
+        account.setBalance(total);
+        Account savedAccount = accountRepository.save(account);
+
         return AccountMapper.mapToAccountDTO(savedAccount);
     }
 }
